@@ -1,0 +1,27 @@
+{
+  "name": "azure-queue-wrapper",
+  "version": "1.0.0",
+  "description": "A wrapper package for making use of Azure Storage Queues easy in nodejs.",
+  "main": "index.js",
+  "keywords": [
+    "azure-queue",
+    "azure-storage-queue",
+    "azure-queue-polling",
+    "cron-azure-queue-polling",
+    "azure-queue-scheduling",
+    "azure-message-queue",
+    "wrapper",
+    "utility",
+    "decorator"
+  ],
+  "author": {
+    "name": "Arijit Ray",
+    "email": "arijitray.ray@gmail.com",
+    "url": "https://github.com/the-arijit-ray"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@azure/storage-queue": "^12.16.0",
+    "node-cron": "^3.0.3"
+  }
+}
