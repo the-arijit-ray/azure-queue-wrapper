@@ -11,7 +11,8 @@ const queueServiceClient = QueueServiceClient.fromConnectionString(config.azureS
 const retries = config.retries ?? 3;
 
 class AzureQueueWrapper {
-    constructor() {
+    constructor(connectionString) {
+        this.queueServiceClient = QueueServiceClient.fromConnectionString(connectionString) ?? queueServiceClient;
         this.queueTasks = [];
     }
 
@@ -20,9 +21,9 @@ class AzureQueueWrapper {
     }
 
     startQueueTasks() {
-        this.queueTasks.forEach(({ queueName, cronExpression, callback, maxRetries, deadLetterQueueName= `${queueName}-poison` }) => {
+        this.queueTasks.forEach((connectionString,{ queueName, cronExpression, callback, maxRetries, deadLetterQueueName= `${queueName}-poison` }) => {
             cron.schedule(cronExpression, async () => {
-                const queueClient = queueServiceClient.getQueueClient(queueName);
+                const queueClient = this.queueServiceClient.getQueueClient(queueName);
                 const messages = await queueClient.receiveMessages();
                 for (const message of messages.receivedMessageItems) {
                     try {
@@ -40,19 +41,27 @@ class AzureQueueWrapper {
             });
         });
     }
+
+    async addMessageToQueue(queueName, message) {
+        const queueClient = this.queueServiceClient.getQueueClient(queueName);
+        await queueClient.sendMessage(JSON.stringify(message));
+    }
 }
 
-function ProcessAzureQueueMessage(options) {
+function ProcessAzureQueueMessage(connectionString,options) {
     return function (target, key) {
         const { queue, timeInterval = [5, 'seconds'], maxRetries, deadLetterQueue } = options;
         if (!queue) {
             throw new Error(`Queue name is required for @ProcessAzureQueueMessage decorator`);
         }
+        if (!connectionString) {
+            throw new Error(`Connection string is required for @ProcessAzureQueueMessage decorator`);
+        }
         const [value, unit] = timeInterval;
         const callback = target[key];
         if (typeof callback === 'function') {
             const cronExpression = convertTimeIntervalToCron(value, unit);
-            const azureQueue = new AzureQueueWrapper();
+            const azureQueue = new AzureQueueWrapper(connectionString);
             azureQueue.addQueueTask(queue, cronExpression, callback, maxRetries, deadLetterQueue);
             azureQueue.startQueueTasks();
         } else {
@@ -62,7 +71,7 @@ function ProcessAzureQueueMessage(options) {
 }
 
 
-function AddMessageToQueue() {
+function AddMessageToQueue(connectionString) {
     return function (target, key, descriptor) {
         const originalMethod = descriptor.value;
 
@@ -70,12 +79,13 @@ function AddMessageToQueue() {
             if (!queueName) {
                 throw new Error('Queue name is required for AddMessageToQueue decorator');
             }
-
+            if (!connectionString) {
+                throw new Error(`Connection string is required for @ProcessAzureQueueMessage decorator`);
+            }
             try {
                 const response = await originalMethod.apply(this, [queueName, message, ...args]);
-
-                const queueClient = queueServiceClient.getQueueClient(queueName);
-                await queueClient.sendMessage(JSON.stringify(message));
+                const azureQueue = new AzureQueueWrapper(connectionString);
+                await azureQueue.addMessageToQueue(queueName, message)
 
                 return { status: 'success', response };
             } catch (error) {

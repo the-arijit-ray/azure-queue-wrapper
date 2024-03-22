@@ -28,7 +28,7 @@ const { ProcessAzureQueueMessage, AddMessageToQueue } = require('azure-queue-wra
    Use the @ProcessAzureQueueMessage decorator to process messages from a queue based on a specified time interval:
 ```javascript
 class MyQueueProcessor {
-@ProcessAzureQueueMessage({ queue: 'my-queue', timeInterval: [5, 'seconds'], maxRetry: 3, deadLetterQueue: 'poison-queue-name' }) // Replace with your queue name, retries count(default: 3), interval (default:5 seconds) and deadLetterQueue name( default: <queue-name>-poison)
+@ProcessAzureQueueMessage(connectionString,{ queue: 'my-queue', timeInterval: [5, 'seconds'], maxRetry: 3, deadLetterQueue: 'poison-queue-name' }) // Replace with your queue name, retries count(default: 3), interval (default:5 seconds) and deadLetterQueue name( default: <queue-name>-poison)
 async processQueueMessage(message) { // Replace with your function name
 // Your message processing logic here
 }
@@ -50,7 +50,7 @@ The time interval should be specified as a tuple with a numeric value and the un
 
 ```javascript
 class MyQueueProducer {
-@AddMessageToQueue()
+@AddMessageToQueue(connectionString)
 async addMessageToQueue(queueName, message) { // Your function name
 // Your message adding logic here
 return { status: 'success' };
