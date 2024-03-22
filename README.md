@@ -8,23 +8,13 @@ You can install the package using npm:
 npm install azure-queue-wrapper
 ```
 ### Usage
-1. Configure the Package
-   First, create a configuration file named aqw.config.json in your project directory with the following content:
-```json
-{
-"azureStorageConnectionString": "<your-azure-storage-connection-string>",
-"retries": 3
-} 
-```
-Replace <your-azure-storage-connection-string> with your actual Azure Storage connection string.
-
-2. Initialize Azure Queue Wrapper
+1. Initialize Azure Queue Wrapper
    Import the package and initialize the Azure Queue Wrapper in your code:
 
 ```javascript
 const { ProcessAzureQueueMessage, AddMessageToQueue } = require('azure-queue-wrapper');
 ```
-3. Process Messages from Queue
+2. Process Messages from Queue
    Use the @ProcessAzureQueueMessage decorator to process messages from a queue based on a specified time interval:
 ```javascript
 class MyQueueProcessor {
@@ -45,7 +35,7 @@ The following time units are supported for specifying the time interval:
 - Weeks
 
 The time interval should be specified as a tuple with a numeric value and the unit, for example, `(5, 'seconds')` for 5 seconds, `(10, 'minutes')` for 10 minutes, and so on.
-4. Add Message to Queue
+3. Add Message to Queue
    Use the @AddMessageToQueue decorator to add a message to a queue:
 
 ```javascript

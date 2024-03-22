@@ -1,14 +1,8 @@
 import {QueueServiceClient} from "@azure/storage-queue";
 import cron from "node-cron"
-import fs from 'fs';
-import path from 'path';
 
-const configPath = path.resolve(__dirname, 'aqw.config.json');
-const rawConfig = fs.readFileSync(configPath, 'utf8');
-const config = JSON.parse(rawConfig);
-
-const queueServiceClient = QueueServiceClient.fromConnectionString(config.azureStorageConnectionString);
-const retries = config.retries ?? 3;
+const retries = 3;
+const interval = [5, 'seconds']
 
 class AzureQueueWrapper {
     constructor(connectionString) {
@@ -50,7 +44,7 @@ class AzureQueueWrapper {
 
 function ProcessAzureQueueMessage(connectionString,options) {
     return function (target, key) {
-        const { queue, timeInterval = [5, 'seconds'], maxRetries, deadLetterQueue } = options;
+        const { queue, timeInterval = interval, maxRetries = retries, deadLetterQueue } = options;
         if (!queue) {
             throw new Error(`Queue name is required for @ProcessAzureQueueMessage decorator`);
         }
