@@ -7,7 +7,10 @@ const interval = [5, 'seconds']
 
 class AzureQueueWrapper {
     constructor(connectionString) {
-        this.queueServiceClient = QueueServiceClient.fromConnectionString(connectionString) ?? queueServiceClient;
+        if(!connectionString) {
+            throw new Error(`Connection string is required!`);
+        }
+        this.queueServiceClient = QueueServiceClient.fromConnectionString(connectionString);
         this.queueTasks = [];
     }
 
@@ -25,7 +28,7 @@ class AzureQueueWrapper {
                         await callback(message);
                         await queueClient.deleteMessage(message.messageId, message.popReceipt);
                     } catch (error) {
-                        console.error('Error processing message:', error);
+                        console.error('Error processing message: ', error);
                         if (message.dequeueCount > maxRetries) {
                                 const deadLetterQueueClient = queueServiceClient.getQueueClient(deadLetterQueueName);
                                 await deadLetterQueueClient.sendMessage(message.messageText);
@@ -76,9 +79,11 @@ function AddMessageToQueue(connectionString) {
             if (!connectionString) {
                 throw new Error(`Connection string is required for @ProcessAzureQueueMessage decorator`);
             }
+
             try {
                 const response = await originalMethod.apply(this, [queueName, message, ...args]);
                 const azureQueue = new AzureQueueWrapper(connectionString);
+
                 await azureQueue.addMessageToQueue(queueName, message)
 
                 return { status: 'success', response };
