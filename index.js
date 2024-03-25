@@ -1,5 +1,6 @@
 import {QueueServiceClient} from "@azure/storage-queue";
 import cron from "node-cron"
+import {convertTimeIntervalToCron} from "./utils/utils";
 
 const retries = 3;
 const interval = [5, 'seconds']
@@ -64,7 +65,6 @@ function ProcessAzureQueueMessage(connectionString,options) {
     };
 }
 
-
 function AddMessageToQueue(connectionString) {
     return function (target, key, descriptor) {
         const originalMethod = descriptor.value;
@@ -89,30 +89,6 @@ function AddMessageToQueue(connectionString) {
 
         return descriptor;
     };
-}
-
-function convertTimeIntervalToCron(value, unit) {
-    let cronExpression = '';
-    switch (unit.toLowerCase()) {
-        case 'seconds':
-            cronExpression = `*/${value} * * * * *`;
-            break;
-        case 'minutes':
-            cronExpression = `*/${value} * * * *`;
-            break;
-        case 'hours':
-            cronExpression = `0 */${value} * * *`;
-            break;
-        case 'days':
-            cronExpression = `0 0 */${value} * *`;
-            break;
-        case 'weeks':
-            cronExpression = `0 0 0 */${value * 7} *`;
-            break;
-        default:
-            throw new Error(`Unsupported time interval unit: ${unit}`);
-    }
-    return cronExpression;
 }
 
 module.exports = {
