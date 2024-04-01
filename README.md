@@ -15,20 +15,21 @@ npm install azure-queue-wrapper
 1. Initialize Azure Queue Wrapper
 Import the package and initialize the Azure Queue Wrapper in your code:
 
-```javascript
-const { ProcessAzureQueueMessage, AddMessageToQueue } = require('azure-queue-wrapper');
+```typescript
+import { ProcessAzureQueueMessage, AddMessageToQueue } from 'azure-queue-wrapper';
 ```
 
 2. Process Messages from Queue
 Use the @ProcessAzureQueueMessage decorator to process messages from a queue based on a specified time interval:
 
-```javascript
+```typescript
 class MyQueueProcessor {
-    @ProcessAzureQueueMessage(connectionString,{ queue: 'my-queue', timeInterval: [5, 'seconds'], maxRetry: 3, deadLetterQueue: 'poison-queue-name' }) // Replace with your queue name, retries count(default: 3), interval (default:5 seconds) and deadLetterQueue name( default: <queue-name>-poison)
-    async processQueueMessage(message) { // Replace with your function name
+    @ProcessAzureQueueMessage('<connection-string>', { queue: '<queue-name>', retry: 3, timeInterval: [5, 'seconds'], deadLetterQueue: '<dead-letter-queue-name>' }) // Replace with your connection string, queue name, retries count(default: 3), interval (default:5 seconds) and deadLetterQueue name( default: <queue-name>-poison)
+    async processQueueMessage(message: any) {
         // Your message processing logic here
     }
 }
+
 ```
 
 ### Supported Time Units
@@ -46,19 +47,25 @@ The time interval should be specified as a tuple with a numeric value and the un
 3. Add Message to Queue
 Use the @AddMessageToQueue decorator to add a message to a queue:
 
-```javascript
+```typescript
 class MyQueueProducer {
-   @AddMessageToQueue(connectionString)
-   async addMessageToQueue(queueName, message) { // Your function name
-       // Your message adding logic here
-      return {status: 'success'};
-   }
+    @AddMessageToQueue('<connection-string>')
+    async addMessageToQueue(queueName: string, message: any) {
+        // Your message adding logic here
+        return { status: 'success' };
+    }
 }
+
 ```
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues or pull requests on the GitHub repository.
+
+## GitHub Repository
+
+Find the source code, contribute, or report issues on [GitHub](https://github.com/the-arijit-ray/azure-queue-wrapper).
+
 
 ## License
 

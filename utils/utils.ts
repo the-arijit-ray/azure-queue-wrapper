@@ -1,4 +1,4 @@
-function convertTimeIntervalToCron(value, unit) {
+function convertTimeIntervalToCron(value: number, unit: string) {
     let cronExpression = '';
     switch (unit.toLowerCase()) {
         case 'seconds':
