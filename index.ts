@@ -1,6 +1,7 @@
 import {QueueClient, QueueServiceClient} from "@azure/storage-queue";
 import cron from "node-cron";
 import {QueueOptions, QueueTasks} from "./types";
+import {convertTimeIntervalToCron} from "./utils/utils";
 
 const retries = 3;
 const interval: [number, string] = [5, 'seconds'];
@@ -61,7 +62,7 @@ class AzureQueueWrapper {
     }
 }
 
-function ProcessAzureQueueMessage(connectionString: string, options: QueueOptions) {
+function ProcessAzureQueueMessage(connectionString: string, options: QueueOptions): (target: any, key: string) => void  {
     return function (target: any, key: string) {
         const { queue, timeInterval = interval, maxRetries = retries, deadLetterQueue } = options;
         if (!queue) {
@@ -83,7 +84,7 @@ function ProcessAzureQueueMessage(connectionString: string, options: QueueOption
     };
 }
 
-function AddMessageToQueue(connectionString: string) {
+function AddMessageToQueue(connectionString: string): (target: any, key: string, descriptor: PropertyDescriptor) => PropertyDescriptor | {status: string, error: any} {
     return function (target: any, key: string, descriptor: PropertyDescriptor) {
         const originalMethod = descriptor.value;
 

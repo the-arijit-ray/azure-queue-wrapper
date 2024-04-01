@@ -1,4 +1,4 @@
-function convertTimeIntervalToCron(value: number, unit: string) {
+export function convertTimeIntervalToCron(value: number, unit: string) {
     let cronExpression = '';
     switch (unit.toLowerCase()) {
         case 'seconds':
@@ -20,8 +20,4 @@ function convertTimeIntervalToCron(value: number, unit: string) {
             throw new Error(`Unsupported time interval unit: ${unit}`);
     }
     return cronExpression;
-}
-
-module.exports = {
-    convertTimeIntervalToCron
 }
