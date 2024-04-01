@@ -103,7 +103,7 @@ function AddMessageToQueue(connectionString: string): (target: any, key: string,
                 await azureQueue.addMessageToQueue(connectionString, queueName, message)
 
                 return { status: 'success', response };
-            } catch (error) {
+            } catch (error: any) {
                 return { status: 'fail', error: error.message };
             }
         };

@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.2 (02/04/2024)
+- fix: error type issue
+
 ### 2.0.1 (02/04/2024)
 - fix: import and type issues
 
