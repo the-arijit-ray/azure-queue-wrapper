@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2015",
-    "lib": ["ES2015", "es2015.promise"],
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "module": "ESNext",
+    "target": "ESNext"
   }
 }

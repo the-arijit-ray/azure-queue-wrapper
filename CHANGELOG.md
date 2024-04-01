@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.3 (02/04/2024)
+- fix: module import errors
+
 ### 2.0.2 (02/04/2024)
 - fix: error type issue
 

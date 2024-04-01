@@ -1,6 +1,7 @@
 {
   "name": "azure-queue-wrapper",
-  "version": "2.0.2",
+  "type": "module",
+  "version": "2.0.3",
   "description": "A wrapper package for making use of Azure Storage Queues easy in nodejs.",
   "main": "index.ts",
   "keywords": [
