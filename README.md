@@ -24,7 +24,7 @@ Use the @ProcessAzureQueueMessage decorator to process messages from a queue bas
 
 ```typescript
 class MyQueueProcessor {
-    @ProcessAzureQueueMessage('<connection-string>', { queue: '<queue-name>', retry: 3, timeInterval: [5, 'seconds'], deadLetterQueue: '<dead-letter-queue-name>', numberOfMessages: 1 }) // Replace with your connection string, queue name, retries count(default: 3), interval (default:5 seconds), deadLetterQueue name( default: <queue-name>-poison) and numberOfMessages(optional) default is 1
+    @ProcessAzureQueueMessage('<connection-string>', { queue: '<queue-name>', retry: 3, timeInterval: [5, 'seconds'], deadLetterQueue: '<dead-letter-queue-name>', numberOfMessages: 1, isMessageEncoded: false, startupDelay: 60 }) // Replace with your connection string, queue name, retries count(default: 3), interval (default:5 seconds), deadLetterQueue name( default: <queue-name>-poison) , numberOfMessages(optional) default is 1, isMessageEncoded (optional) determines if messsage from queue will be encoded (default = false), startupDelay in seconds (optional) default is 60 seconds
     async processQueueMessage(message: any) {
         // Your message processing logic here
     }

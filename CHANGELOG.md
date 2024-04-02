@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.7 (12/04/2024)
+- fix: typescript issue and project structure
+
 ### 2.0.6 (02/04/2024)
 - fix: numberOfMessage undefined type issue
 

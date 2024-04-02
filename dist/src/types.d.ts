@@ -4,8 +4,9 @@ export interface QueueOptions {
     maxRetries?: number;
     deadLetterQueue?: string;
     numberOfMessages?: number;
+    isMessageEncoded?: boolean;
+    startupDelay?: number;
 }
-
 export interface QueueTasks {
     queueName: string;
     cronExpression: string;
@@ -13,4 +14,5 @@ export interface QueueTasks {
     maxRetries: number;
     deadLetterQueueName: string;
     numberOfMessages?: number;
+    isMessageEncoded?: boolean;
 }

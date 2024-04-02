@@ -1,9 +1,10 @@
 {
   "name": "azure-queue-wrapper",
-  "type": "module",
-  "version": "2.0.6",
+  "type": "commonjs",
+  "version": "2.0.7",
   "description": "A wrapper package for making use of Azure Storage Queues easy in nodejs.",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "keywords": [
     "azure-queue",
     "azure-storage-queue",
@@ -15,6 +16,15 @@
     "utility",
     "decorator"
   ],
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "lint:format": "eslint --ext .ts,.tsx,.js,.jsx --fix . && prettier -w .",
+    "pack": "npm pack"
+  },
+  "files": [
+    "dist"
+  ],
   "author": {
     "name": "Arijit Ray",
     "email": "arijitray.ray@gmail.com",
@@ -24,5 +34,18 @@
   "dependencies": {
     "@azure/storage-queue": "^12.16.0",
     "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node-cron": "^3.0.11",
+    "typescript": "^4.7.4",
+    "@types/node": "^16.11.10",
+    "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "2.7.1",
+    "ts-node": "10.7.0"
   }
 }
