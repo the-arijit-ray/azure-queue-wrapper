@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.6 (02/04/2024)
+- fix: numberOfMessage undefined type issue
+
 ### 2.0.5 (02/04/2024)
 - fix: export individual functions
 - feat: multiple message read support

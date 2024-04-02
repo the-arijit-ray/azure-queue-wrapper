@@ -30,7 +30,7 @@ class AzureQueueWrapper {
         return this.queueServiceConnections[connectionString];
     }
 
-    addQueueTask(queueName: string, cronExpression: string, callback: (message: any) => Promise<void>, maxRetries = retries, deadLetterQueueName = `${queueName}-poison`,numberOfMessages: number) {
+    addQueueTask(queueName: string, cronExpression: string, callback: (message: any) => Promise<void>, maxRetries = retries, deadLetterQueueName = `${queueName}-poison`,numberOfMessages=1) {
         this.queueTasks.push({ queueName, cronExpression, callback, maxRetries, deadLetterQueueName, numberOfMessages });
     }
 
