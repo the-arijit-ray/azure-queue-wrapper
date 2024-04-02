@@ -30,15 +30,15 @@ class AzureQueueWrapper {
         return this.queueServiceConnections[connectionString];
     }
 
-    addQueueTask(queueName: string, cronExpression: string, callback: (message: any) => Promise<void>, maxRetries = retries, deadLetterQueueName = `${queueName}-poison`) {
-        this.queueTasks.push({ queueName, cronExpression, callback, maxRetries, deadLetterQueueName });
+    addQueueTask(queueName: string, cronExpression: string, callback: (message: any) => Promise<void>, maxRetries = retries, deadLetterQueueName = `${queueName}-poison`,numberOfMessages: number) {
+        this.queueTasks.push({ queueName, cronExpression, callback, maxRetries, deadLetterQueueName, numberOfMessages });
     }
 
     startQueueTasks(connectionString) {
-        this.queueTasks.forEach(({ queueName, cronExpression, callback, maxRetries, deadLetterQueueName = `${queueName}-poison` }) => {
+        this.queueTasks.forEach(({ queueName, cronExpression, callback, maxRetries, deadLetterQueueName = `${queueName}-poison`, numberOfMessages= 1 }) => {
             cron.schedule(cronExpression, async () => {
                 const queueClient = this.getQueueClient(connectionString, queueName);
-                const messages = await queueClient.receiveMessages();
+                const messages = await queueClient.receiveMessages({numberOfMessages});
                 for (const message of messages.receivedMessageItems) {
                     try {
                         await callback(message);
@@ -64,7 +64,7 @@ class AzureQueueWrapper {
 
 export function ProcessAzureQueueMessage(connectionString: string, options: QueueOptions): (target: any, key: string) => void  {
     return function (target: any, key: string) {
-        const { queue, timeInterval = interval, maxRetries = retries, deadLetterQueue } = options;
+        const { queue, timeInterval = interval, maxRetries = retries, deadLetterQueue,numberOfMessages } = options;
         if (!queue) {
             throw new Error(`Queue name is required for @ProcessAzureQueueMessage decorator`);
         }
@@ -76,7 +76,7 @@ export function ProcessAzureQueueMessage(connectionString: string, options: Queu
         if (typeof callback === 'function') {
             const cronExpression = convertTimeIntervalToCron(value, unit);
             const azureQueue = new AzureQueueWrapper();
-            azureQueue.addQueueTask(queue, cronExpression, callback, maxRetries, deadLetterQueue);
+            azureQueue.addQueueTask(queue, cronExpression, callback, maxRetries, deadLetterQueue,numberOfMessages);
             azureQueue.startQueueTasks(connectionString);
         } else {
             throw new Error(`@ProcessAzureQueueMessage decorator can only be applied to functions`);

@@ -3,6 +3,7 @@ export interface QueueOptions {
     timeInterval?: [number, string];
     maxRetries?: number;
     deadLetterQueue?: string;
+    numberOfMessages?: number;
 }
 
 export interface QueueTasks {
@@ -11,4 +12,5 @@ export interface QueueTasks {
     callback: (message: any) => Promise<void>;
     maxRetries: number;
     deadLetterQueueName: string;
+    numberOfMessages?: number;
 }

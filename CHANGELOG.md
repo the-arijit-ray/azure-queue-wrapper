@@ -1,6 +1,10 @@
 ## ChangeLog
 
-### 2.0.3 (02/04/2024)
+### 2.0.5 (02/04/2024)
+- fix: export individual functions
+- feat: multiple message read support
+
+### 2.0.4 (02/04/2024)
 - fix: module es modules import errors
 
 ### 2.0.3 (02/04/2024)
