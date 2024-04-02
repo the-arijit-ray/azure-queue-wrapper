@@ -62,7 +62,7 @@ class AzureQueueWrapper {
     }
 }
 
-function ProcessAzureQueueMessage(connectionString: string, options: QueueOptions): (target: any, key: string) => void  {
+export function ProcessAzureQueueMessage(connectionString: string, options: QueueOptions): (target: any, key: string) => void  {
     return function (target: any, key: string) {
         const { queue, timeInterval = interval, maxRetries = retries, deadLetterQueue } = options;
         if (!queue) {
@@ -84,7 +84,7 @@ function ProcessAzureQueueMessage(connectionString: string, options: QueueOption
     };
 }
 
-function AddMessageToQueue(connectionString: string): (target: any, key: string, descriptor: PropertyDescriptor) => PropertyDescriptor | {status: string, error: any} {
+export function AddMessageToQueue(connectionString: string): (target: any, key: string, descriptor: PropertyDescriptor) => PropertyDescriptor | {status: string, error: any} {
     return function (target: any, key: string, descriptor: PropertyDescriptor) {
         const originalMethod = descriptor.value;
 
@@ -112,4 +112,7 @@ function AddMessageToQueue(connectionString: string): (target: any, key: string,
     };
 }
 
-export { ProcessAzureQueueMessage, AddMessageToQueue };
+module.exports = {
+    ProcessAzureQueueMessage,
+    AddMessageToQueue
+};
