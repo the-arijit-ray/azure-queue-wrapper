@@ -141,7 +141,6 @@ class AzureQueueWrapper {
     queueClient: typeof QueueClient,
   ) {
     console.error("Error processing message: ", error);
-    console.log(message.dequeueCount,maxRetries);
     if (message.dequeueCount > maxRetries) {
       await this.moveMessageToPoison(
         connectionString,

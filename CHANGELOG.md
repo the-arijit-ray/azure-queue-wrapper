@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.8 (12/04/2024)
+- fix: remove console logs
+
 ### 2.0.7 (12/04/2024)
 - fix: typescript issue and project structure
 
