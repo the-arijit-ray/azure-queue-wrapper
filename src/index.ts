@@ -112,7 +112,7 @@ class AzureQueueWrapper {
         await queueClient.updateMessage(
           message.messageId,
           message.popReceipt,
-          message,
+          message.messageText,
           5,
         );
       }, leaseDuration * 1000);

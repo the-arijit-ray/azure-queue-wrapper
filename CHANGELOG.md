@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.9 (12/04/2024)
+- fix: update message string issue
+
 ### 2.0.8 (12/04/2024)
 - fix: remove console logs
 

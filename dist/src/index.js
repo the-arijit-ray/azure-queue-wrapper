@@ -69,7 +69,7 @@ class AzureQueueWrapper {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const intervalId = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                    yield queueClient.updateMessage(message.messageId, message.popReceipt, message, 5);
+                    yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 5);
                 }), leaseDuration * 1000);
                 let finalMessage = (0, utils_1.getProcessedMessage)(message, isMessageEncoded);
                 yield callback(finalMessage);
@@ -84,7 +84,6 @@ class AzureQueueWrapper {
     handleProcessingError(error, message, maxRetries, connectionString, deadLetterQueueName, queueClient) {
         return __awaiter(this, void 0, void 0, function* () {
             console.error("Error processing message: ", error);
-            console.log(message.dequeueCount, maxRetries);
             if (message.dequeueCount > maxRetries) {
                 yield this.moveMessageToPoison(connectionString, deadLetterQueueName, message);
                 yield this.removeMessageFromQueue(queueClient, message);
