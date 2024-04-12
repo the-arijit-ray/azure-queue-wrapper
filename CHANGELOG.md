@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.11 (13/04/2024)
+- chore: increase visibility timeout
+
 ### 2.0.9 (12/04/2024)
 - fix: update message string issue
 

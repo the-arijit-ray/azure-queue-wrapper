@@ -69,7 +69,7 @@ class AzureQueueWrapper {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const intervalId = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                    yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 5);
+                    yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 240);
                 }), leaseDuration * 1000);
                 let finalMessage = (0, utils_1.getProcessedMessage)(message, isMessageEncoded);
                 yield callback(finalMessage);

@@ -113,7 +113,7 @@ class AzureQueueWrapper {
           message.messageId,
           message.popReceipt,
           message.messageText,
-          5,
+          240,
         );
       }, leaseDuration * 1000);
       let finalMessage = getProcessedMessage(message, isMessageEncoded);
