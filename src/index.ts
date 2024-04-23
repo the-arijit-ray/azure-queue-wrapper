@@ -113,7 +113,7 @@ class AzureQueueWrapper {
           message.messageId,
           message.popReceipt,
           message.messageText,
-          240,
+          120,
         );
       }, leaseDuration * 1000);
       let finalMessage = getProcessedMessage(message, isMessageEncoded);
@@ -140,21 +140,25 @@ class AzureQueueWrapper {
     deadLetterQueueName: string,
     queueClient: typeof QueueClient,
   ) {
-    console.error("Error processing message: ", error);
-    if (message.dequeueCount > maxRetries) {
-      await this.moveMessageToPoison(
-        connectionString,
-        deadLetterQueueName,
-        message,
-      );
-      await this.removeMessageFromQueue(queueClient, message);
-    } else {
-      await queueClient.updateMessage(
-        message.messageId,
-        message.popReceipt,
-        message.messageText,
-        0,
-      );
+    try {
+      console.error("Error processing message: ", error);
+      if (message.dequeueCount > maxRetries) {
+        await this.moveMessageToPoison(
+            connectionString,
+            deadLetterQueueName,
+            message,
+        );
+        await this.removeMessageFromQueue(queueClient, message);
+      } else {
+        await queueClient.updateMessage(
+            message.messageId,
+            message.popReceipt,
+            message.messageText,
+            0,
+        );
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 

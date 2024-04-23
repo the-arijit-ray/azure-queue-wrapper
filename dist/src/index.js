@@ -69,7 +69,7 @@ class AzureQueueWrapper {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const intervalId = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                    yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 240);
+                    yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 120);
                 }), leaseDuration * 1000);
                 let finalMessage = (0, utils_1.getProcessedMessage)(message, isMessageEncoded);
                 yield callback(finalMessage);
@@ -83,13 +83,18 @@ class AzureQueueWrapper {
     }
     handleProcessingError(error, message, maxRetries, connectionString, deadLetterQueueName, queueClient) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.error("Error processing message: ", error);
-            if (message.dequeueCount > maxRetries) {
-                yield this.moveMessageToPoison(connectionString, deadLetterQueueName, message);
-                yield this.removeMessageFromQueue(queueClient, message);
+            try {
+                console.error("Error processing message: ", error);
+                if (message.dequeueCount > maxRetries) {
+                    yield this.moveMessageToPoison(connectionString, deadLetterQueueName, message);
+                    yield this.removeMessageFromQueue(queueClient, message);
+                }
+                else {
+                    yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 0);
+                }
             }
-            else {
-                yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 0);
+            catch (e) {
+                console.error(e);
             }
         });
     }
