@@ -57,6 +57,7 @@ class AzureQueueWrapper {
                     const queueClient = this.getQueueClient(connectionString, queueName);
                     const messages = yield queueClient.receiveMessages({
                         numberOfMessages,
+                        visibilityTimeout: 90
                     });
                     for (const message of messages.receivedMessageItems) {
                         yield this.processMessage(queueClient, message, isMessageEncoded, maxRetries, connectionString, deadLetterQueueName, callback);
@@ -69,12 +70,14 @@ class AzureQueueWrapper {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const intervalId = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                    yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 120);
+                    const updatedMessageDetails = yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 120);
+                    //azure queue changes popReceipt after every update/get message operation.
+                    message.popReceipt = updatedMessageDetails.popReceipt;
                 }), leaseDuration * 1000);
                 let finalMessage = (0, utils_1.getProcessedMessage)(message, isMessageEncoded);
                 yield callback(finalMessage);
-                yield this.removeMessageFromQueue(queueClient, message);
                 clearInterval(intervalId);
+                yield this.removeMessageFromQueue(queueClient, message);
             }
             catch (error) {
                 yield this.handleProcessingError(error, message, maxRetries, connectionString, deadLetterQueueName, queueClient);
