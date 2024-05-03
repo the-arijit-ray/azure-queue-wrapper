@@ -80,6 +80,7 @@ class AzureQueueWrapper {
             );
             const messages = await queueClient.receiveMessages({
               numberOfMessages,
+              visibilityTimeout: 90
             });
             for (const message of messages.receivedMessageItems) {
               await this.processMessage(
@@ -109,17 +110,20 @@ class AzureQueueWrapper {
   ) {
     try {
       const intervalId = setInterval(async () => {
-        await queueClient.updateMessage(
+        const updatedMessageDetails = await queueClient.updateMessage(
           message.messageId,
           message.popReceipt,
           message.messageText,
           120,
         );
+
+        //azure queue changes popReceipt after every update/get message operation.
+        message.popReceipt = updatedMessageDetails.popReceipt;
       }, leaseDuration * 1000);
       let finalMessage = getProcessedMessage(message, isMessageEncoded);
       await callback(finalMessage);
-      await this.removeMessageFromQueue(queueClient, message);
       clearInterval(intervalId);
+      await this.removeMessageFromQueue(queueClient, message);
     } catch (error) {
       await this.handleProcessingError(
         error,
