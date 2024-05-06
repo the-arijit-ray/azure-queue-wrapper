@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.13 (03/05/2024)
+- fix: visibility timeout renewal
+
 ### 2.0.12 (23/04/2024)
 - chore: increase visibility timeout
 
