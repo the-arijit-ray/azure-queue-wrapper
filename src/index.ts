@@ -200,8 +200,8 @@ class AzureQueueWrapper {
 export function ProcessAzureQueueMessage(
   connectionString: string,
   options: typeof QueueOptions,
-): (target: any, key: string) => void {
-  return function (target: any, key: string) {
+): (target: any, key: string, descriptor: PropertyDescriptor) => PropertyDescriptor | void {
+  return function (target: any, key: string, descriptor: PropertyDescriptor) {
     const {
       queue,
       timeInterval = interval,
@@ -222,20 +222,27 @@ export function ProcessAzureQueueMessage(
       );
     }
     const [value, unit] = timeInterval;
-    const callback = target[key];
+    const callback = descriptor.value;
     if (typeof callback === "function") {
       const cronExpression = convertTimeIntervalToCron(value, unit);
-      const azureQueue = new AzureQueueWrapper();
-      azureQueue.addQueueTask(
-        queue,
-        cronExpression,
-        callback,
-        maxRetries,
-        deadLetterQueue,
-        numberOfMessages,
-        isMessageEncoded,
-      );
-      azureQueue.startQueueTasks(connectionString,startupDelay ?? initialDelay);
+      descriptor.value = async function (...args: any[]) {
+
+        //"this" refers to the instance of the class the callback is part of.
+        const bindedCallback = callback.bind(this, ...args)
+
+        const azureQueue = new AzureQueueWrapper();
+        azureQueue.addQueueTask(
+          queue,
+          cronExpression,
+          bindedCallback,
+          maxRetries,
+          deadLetterQueue,
+          numberOfMessages,
+          isMessageEncoded,
+        );
+        azureQueue.startQueueTasks(connectionString, startupDelay ?? initialDelay);
+      }
+      return descriptor;
     } else {
       throw new Error(
         `@ProcessAzureQueueMessage decorator can only be applied to functions`,
