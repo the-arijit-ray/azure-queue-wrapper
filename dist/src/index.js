@@ -126,7 +126,7 @@ class AzureQueueWrapper {
     }
 }
 function ProcessAzureQueueMessage(connectionString, options) {
-    return function (target, key) {
+    return function (target, key, descriptor) {
         const { queue, timeInterval = interval, maxRetries = retries, deadLetterQueue, numberOfMessages, isMessageEncoded, startupDelay } = options;
         if (!queue) {
             throw new Error(`Queue name is required for @ProcessAzureQueueMessage decorator`);
@@ -135,12 +135,19 @@ function ProcessAzureQueueMessage(connectionString, options) {
             throw new Error(`Connection string is required for @ProcessAzureQueueMessage decorator`);
         }
         const [value, unit] = timeInterval;
-        const callback = target[key];
+        const callback = descriptor.value;
         if (typeof callback === "function") {
             const cronExpression = convertTimeIntervalToCron(value, unit);
-            const azureQueue = new AzureQueueWrapper();
-            azureQueue.addQueueTask(queue, cronExpression, callback, maxRetries, deadLetterQueue, numberOfMessages, isMessageEncoded);
-            azureQueue.startQueueTasks(connectionString, startupDelay !== null && startupDelay !== void 0 ? startupDelay : initialDelay);
+            descriptor.value = function (...args) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    //"this" refers to the instance of the class the callback is part of.
+                    const bindedCallback = callback.bind(this, ...args);
+                    const azureQueue = new AzureQueueWrapper();
+                    azureQueue.addQueueTask(queue, cronExpression, bindedCallback, maxRetries, deadLetterQueue, numberOfMessages, isMessageEncoded);
+                    azureQueue.startQueueTasks(connectionString, startupDelay !== null && startupDelay !== void 0 ? startupDelay : initialDelay);
+                });
+            };
+            return descriptor;
         }
         else {
             throw new Error(`@ProcessAzureQueueMessage decorator can only be applied to functions`);

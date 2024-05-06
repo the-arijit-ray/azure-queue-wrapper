@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.0.14 (06/05/2024)
+- fix: class reference fix
+
 ### 2.0.13 (03/05/2024)
 - fix: visibility timeout renewal
 
