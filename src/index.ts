@@ -209,7 +209,8 @@ export function ProcessAzureQueueMessage(
       deadLetterQueue,
       numberOfMessages,
       isMessageEncoded,
-      startupDelay
+      startupDelay,
+      disabled
     } = options;
     if (!queue) {
       throw new Error(
@@ -224,6 +225,10 @@ export function ProcessAzureQueueMessage(
     const [value, unit] = timeInterval;
     const callback = descriptor.value;
     if (typeof callback === "function") {
+      if (disabled) {
+        console.warn(`Messages from Azure queue named ${queue} will not be processed as the processor is disabled!`)
+        return;
+      }
       const cronExpression = convertTimeIntervalToCron(value, unit);
       descriptor.value = async function (...args: any[]) {
 
