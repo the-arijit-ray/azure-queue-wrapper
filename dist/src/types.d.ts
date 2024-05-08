@@ -6,6 +6,7 @@ export interface QueueOptions {
     numberOfMessages?: number;
     isMessageEncoded?: boolean;
     startupDelay?: number;
+    disabled?: boolean;
 }
 export interface QueueTasks {
     queueName: string;
