@@ -127,7 +127,7 @@ class AzureQueueWrapper {
 }
 function ProcessAzureQueueMessage(connectionString, options) {
     return function (target, key, descriptor) {
-        const { queue, timeInterval = interval, maxRetries = retries, deadLetterQueue, numberOfMessages, isMessageEncoded, startupDelay } = options;
+        const { queue, timeInterval = interval, maxRetries = retries, deadLetterQueue, numberOfMessages, isMessageEncoded, startupDelay, disabled } = options;
         if (!queue) {
             throw new Error(`Queue name is required for @ProcessAzureQueueMessage decorator`);
         }
@@ -137,6 +137,10 @@ function ProcessAzureQueueMessage(connectionString, options) {
         const [value, unit] = timeInterval;
         const callback = descriptor.value;
         if (typeof callback === "function") {
+            if (disabled) {
+                console.warn(`Messages from Azure queue named ${queue} will not be processed as the processor is disabled!`);
+                return;
+            }
             const cronExpression = convertTimeIntervalToCron(value, unit);
             descriptor.value = function (...args) {
                 return __awaiter(this, void 0, void 0, function* () {
