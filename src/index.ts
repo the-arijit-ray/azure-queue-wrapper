@@ -108,17 +108,27 @@ class AzureQueueWrapper {
     deadLetterQueueName: string,
     callback: (message: any) => Promise<void>,
   ) {
+    let intervalId: any;
     try {
-      const intervalId = setInterval(async () => {
-        const updatedMessageDetails = await queueClient.updateMessage(
-          message.messageId,
-          message.popReceipt,
-          message.messageText,
-          120,
-        );
+      intervalId = setInterval(async () => {
+        try {
+          const updatedMessageDetails = await queueClient.updateMessage(
+            message.messageId,
+            message.popReceipt,
+            message.messageText,
+            120,
+          );
 
-        //azure queue changes popReceipt after every update/get message operation.
-        message.popReceipt = updatedMessageDetails.popReceipt;
+          //azure queue changes popReceipt after every update/get message operation.
+          message.popReceipt = updatedMessageDetails.popReceipt;
+        } catch (e: any) {
+          if (e?.statusCode != 404) {
+            throw e;
+          }
+          else {
+            clearInterval(intervalId);
+          }
+        }
       }, leaseDuration * 1000);
       let finalMessage = getProcessedMessage(message, isMessageEncoded);
       await callback(finalMessage);
@@ -148,17 +158,17 @@ class AzureQueueWrapper {
       console.error("Error processing message: ", error);
       if (message.dequeueCount > maxRetries) {
         await this.moveMessageToPoison(
-            connectionString,
-            deadLetterQueueName,
-            message,
+          connectionString,
+          deadLetterQueueName,
+          message,
         );
         await this.removeMessageFromQueue(queueClient, message);
       } else {
         await queueClient.updateMessage(
-            message.messageId,
-            message.popReceipt,
-            message.messageText,
-            0,
+          message.messageId,
+          message.popReceipt,
+          message.messageText,
+          0,
         );
       }
     } catch (e) {
