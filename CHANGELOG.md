@@ -1,6 +1,9 @@
 ## ChangeLog
 
-### 2.0.14 (06/05/2024)
+### 2.1.0 (16/09/2024)
+- fix: poison queue fix
+
+### 2.0.15 (06/05/2024)
 - feat: option to disable queue processing
 
 ### 2.0.14 (06/05/2024)
