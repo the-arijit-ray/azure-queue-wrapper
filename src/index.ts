@@ -4,7 +4,7 @@ const { QueueClient, QueueServiceClient } = require("@azure/storage-queue");
 const cron = require("node-cron");
 const { QueueOptions, QueueTasks } = require("./types");
 const { convertTimeIntervalToCron } = require("./utils/utils");
-
+let messageCount = 0;
 const retries = 3;
 const interval: [number, string] = [5, "seconds"];
 const leaseDuration = 60; //in seconds
@@ -78,20 +78,26 @@ class AzureQueueWrapper {
               connectionString,
               queueName,
             );
-            const messages = await queueClient.receiveMessages({
-              numberOfMessages,
-              visibilityTimeout: 90
-            });
-            for (const message of messages.receivedMessageItems) {
-              await this.processMessage(
-                queueClient,
-                message,
-                isMessageEncoded,
-                maxRetries,
-                connectionString,
-                deadLetterQueueName,
-                callback,
-              );
+            if(messageCount == 0) {
+              const messages = await queueClient.receiveMessages({
+                numberOfMessages,
+                visibilityTimeout: 90
+              });
+              messageCount = messages.receivedMessageItems.length;
+              const promises: Promise<void>[] = [];
+              for (const message of messages.receivedMessageItems) {
+                promises.push(this.processMessage(
+                    queueClient,
+                    message,
+                    isMessageEncoded,
+                    maxRetries,
+                    connectionString,
+                    deadLetterQueueName,
+                    callback,
+                ));
+              }
+              await Promise.all(promises);
+              messageCount -= promises.length;
             }
           });
         },
