@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.1.1 (14/10/2024)
+- Revert fix: poison queue fix
+
 ### 2.1.0 (16/09/2024)
 - fix: poison queue fix
 

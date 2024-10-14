@@ -1,7 +1,7 @@
 {
   "name": "azure-queue-wrapper",
   "type": "commonjs",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A wrapper package for making use of Azure Storage Queues easy in nodejs.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
