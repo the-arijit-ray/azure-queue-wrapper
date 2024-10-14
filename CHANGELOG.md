@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.1.5 (14/10/2024)
+fix(queue): queue message count issue
+
 ### 2.1.4 (14/10/2024)
 - fix(queue): message pull count logic issue
 - Revert "Revert "fix: poison queue fix (#9)""
