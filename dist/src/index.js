@@ -56,9 +56,9 @@ class AzureQueueWrapper {
             this.queueTasks.forEach(({ queueName, cronExpression, callback, maxRetries, deadLetterQueueName = `${queueName}-poison`, numberOfMessages = 1, isMessageEncoded = false, }) => {
                 cron.schedule(cronExpression, () => __awaiter(this, void 0, void 0, function* () {
                     const queueClient = this.getQueueClient(connectionString, queueName);
-                    if (messageCount == 0) {
+                    if (messageCount < numberOfMessages) {
                         const messages = yield queueClient.receiveMessages({
-                            numberOfMessages,
+                            numberOfMessages: Number(numberOfMessages - messageCount),
                             visibilityTimeout: 90
                         });
                         messageCount = messages.receivedMessageItems.length;
@@ -75,11 +75,22 @@ class AzureQueueWrapper {
     }
     processMessage(queueClient, message, isMessageEncoded, maxRetries, connectionString, deadLetterQueueName, callback) {
         return __awaiter(this, void 0, void 0, function* () {
+            let intervalId;
             try {
-                const intervalId = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                    const updatedMessageDetails = yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 120);
-                    //azure queue changes popReceipt after every update/get message operation.
-                    message.popReceipt = updatedMessageDetails.popReceipt;
+                intervalId = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                    try {
+                        const updatedMessageDetails = yield queueClient.updateMessage(message.messageId, message.popReceipt, message.messageText, 120);
+                        //azure queue changes popReceipt after every update/get message operation.
+                        message.popReceipt = updatedMessageDetails.popReceipt;
+                    }
+                    catch (e) {
+                        if ((e === null || e === void 0 ? void 0 : e.statusCode) != 404) {
+                            throw e;
+                        }
+                        else {
+                            clearInterval(intervalId);
+                        }
+                    }
                 }), leaseDuration * 1000);
                 let finalMessage = (0, utils_1.getProcessedMessage)(message, isMessageEncoded);
                 yield callback(finalMessage);

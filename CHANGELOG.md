@@ -1,5 +1,9 @@
 ## ChangeLog
 
+### 2.1.4 (14/10/2024)
+- fix(queue): message pull count logic issue
+- Revert "Revert "fix: poison queue fix (#9)""
+
 ### 2.1.3 (14/10/2024)
 - fix(queue): wait for existing reports to be processed
 
