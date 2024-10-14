@@ -78,9 +78,9 @@ class AzureQueueWrapper {
               connectionString,
               queueName,
             );
-            if(messageCount == 0) {
+            if(messageCount < numberOfMessages) {
               const messages = await queueClient.receiveMessages({
-                numberOfMessages,
+              numberOfMessages : Number(numberOfMessages - messageCount),
                 visibilityTimeout: 90
               });
               messageCount = messages.receivedMessageItems.length;
