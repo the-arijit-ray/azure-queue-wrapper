@@ -83,7 +83,7 @@ class AzureQueueWrapper {
               numberOfMessages : Number(numberOfMessages - messageCount),
                 visibilityTimeout: 90
               });
-              messageCount = messages.receivedMessageItems.length;
+              messageCount += messages.receivedMessageItems.length;
               const promises: Promise<void>[] = [];
               for (const message of messages.receivedMessageItems) {
                 promises.push(this.processMessage(
