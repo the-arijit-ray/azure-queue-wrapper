@@ -15,6 +15,7 @@ const { QueueClient, QueueServiceClient } = require("@azure/storage-queue");
 const cron = require("node-cron");
 const { QueueOptions, QueueTasks } = require("./types");
 const { convertTimeIntervalToCron } = require("./utils/utils");
+let messageCount = 0;
 const retries = 3;
 const interval = [5, "seconds"];
 const leaseDuration = 60; //in seconds
@@ -55,12 +56,18 @@ class AzureQueueWrapper {
             this.queueTasks.forEach(({ queueName, cronExpression, callback, maxRetries, deadLetterQueueName = `${queueName}-poison`, numberOfMessages = 1, isMessageEncoded = false, }) => {
                 cron.schedule(cronExpression, () => __awaiter(this, void 0, void 0, function* () {
                     const queueClient = this.getQueueClient(connectionString, queueName);
-                    const messages = yield queueClient.receiveMessages({
-                        numberOfMessages,
-                        visibilityTimeout: 90
-                    });
-                    for (const message of messages.receivedMessageItems) {
-                        yield this.processMessage(queueClient, message, isMessageEncoded, maxRetries, connectionString, deadLetterQueueName, callback);
+                    if (messageCount == 0) {
+                        const messages = yield queueClient.receiveMessages({
+                            numberOfMessages,
+                            visibilityTimeout: 90
+                        });
+                        messageCount = messages.receivedMessageItems.length;
+                        const promises = [];
+                        for (const message of messages.receivedMessageItems) {
+                            promises.push(this.processMessage(queueClient, message, isMessageEncoded, maxRetries, connectionString, deadLetterQueueName, callback));
+                        }
+                        yield Promise.all(promises);
+                        messageCount -= promises.length;
                     }
                 }));
             });

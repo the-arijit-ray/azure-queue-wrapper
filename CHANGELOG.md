@@ -1,5 +1,8 @@
 ## ChangeLog
 
+### 2.1.3 (14/10/2024)
+- fix(queue): wait for existing reports to be processed
+
 ### 2.1.1 (14/10/2024)
 - Revert fix: poison queue fix
 
