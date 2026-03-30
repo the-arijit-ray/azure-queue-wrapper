@@ -41,6 +41,10 @@ class AzureQueueWrapper {
     return this.queueServiceConnections[connectionString];
   }
 
+  /**
+   * Adds a scheduled queue task configuration to the internal task list.
+   * @example
+   * ddQueueTask('my-queue', '0 * * * *', async (message) => { /* ... */
   addQueueTask(
     queueName: string,
     cronExpression: string,
@@ -61,6 +65,15 @@ class AzureQueueWrapper {
     });
   }
 
+  /**
+   * Starts scheduled queue polling tasks after a specified delay.
+   * @example
+   * tartQueueTasks(connectionString, delay)
+   * undefined
+   * @param {string} connectionString - The connection string used to create queue clients.
+   * @param {number} delay - Delay in seconds before the queue tasks are started.
+   * @returns {void} This function does not return a value.
+   */
   startQueueTasks(connectionString: string, delay: number) {
     setTimeout(() => {
       this.queueTasks.forEach(
@@ -105,6 +118,20 @@ class AzureQueueWrapper {
     }, delay * 1000);
   }
 
+  /**
+   * Processes a queue message by renewing its lease, decoding it if needed, invoking a callback, and removing it from the queue on success.
+   * @example
+   * processMessage(queueClient, message, true, maxRetries, connectionString, deadLetterQueueName, callback)
+   * undefined
+   * @param {typeof QueueClient} queueClient - The queue client used to update and remove the message.
+   * @param {any} message - The queue message to process.
+   * @param {boolean} isMessageEncoded - Indicates whether the message payload is encoded.
+   * @param {number} maxRetries - The maximum number of retries allowed for processing errors.
+   * @param {string} connectionString - The Azure Storage connection string used for error handling or dead-lettering.
+   * @param {string} deadLetterQueueName - The name of the dead-letter queue.
+   * @param {(message: any) => Promise<void>} callback - Async callback invoked with the processed message.
+   * @returns {Promise<void>} A promise that resolves when processing completes or error handling finishes.
+   */
   async processMessage(
     queueClient: typeof QueueClient,
     message: any,
@@ -152,6 +179,19 @@ class AzureQueueWrapper {
     }
   }
 
+  /**
+   * Handles errors that occur during message processing by either retrying the message or moving it to a poison queue.
+   * @example
+   * handleProcessingError(error, message, maxRetries, connectionString, deadLetterQueueName, queueClient)
+   * undefined
+   * @param {any} error - The error thrown while processing the message.
+   * @param {any} message - The queue message being processed.
+   * @param {number} maxRetries - The maximum number of retry attempts allowed before moving the message to the dead-letter queue.
+   * @param {string} connectionString - The connection string used to access the queue service.
+   * @param {string} deadLetterQueueName - The name of the dead-letter queue where failed messages are moved.
+   * @param {typeof QueueClient} queueClient - The queue client used to update or remove the message.
+   * @returns {Promise<void>} A promise that resolves when error handling completes.
+   **/
   async handleProcessingError(
     error: any,
     message: any,
@@ -182,6 +222,16 @@ class AzureQueueWrapper {
     }
   }
 
+  /**
+  * Adds a message to the specified queue using the provided connection string and queue name.
+  * @example
+  * addMessageToQueue("UseDevelopmentStorage=true", "my-queue", { id: 1, text: "hello" })
+  * undefined
+  * @param {string} connectionString - The connection string used to create the queue client.
+  * @param {string} queueName - The name of the queue to send the message to.
+  * @param {any} message - The message payload to enqueue.
+  * @returns {Promise<void>} Resolves when the message has been successfully sent to the queue.
+  **/
   async addMessageToQueue(
     connectionString: string,
     queueName: string,
@@ -213,6 +263,21 @@ class AzureQueueWrapper {
   }
 }
 
+/**
+* Decorates a method to process messages from an Azure Queue on a scheduled interval, registering the method as a queue task and starting the queue processor with the provided connection settings.
+* @example
+* @ProcessAzureQueueMessage("UseDevelopmentStorage=true;", {
+*   queue: "my-queue",
+*   timeInterval: [5, "minutes"],
+*   maxRetries: 3
+* })
+* async handleQueueMessage(message) {
+*   return "processed";
+* }
+* @param {string} connectionString - Azure Storage connection string used to connect to the queue service.
+* @param {typeof QueueOptions} options - Configuration options for the queue processor, including queue name, interval, retries, dead-letter queue, and other processing settings.
+* @returns {(target: any, key: string, descriptor: PropertyDescriptor) => PropertyDescriptor | void} A method decorator that replaces the original function with a queue-processing wrapper or throws an error when configuration is invalid.
+**/
 export function ProcessAzureQueueMessage(
   connectionString: string,
   options: typeof QueueOptions,
@@ -272,6 +337,14 @@ export function ProcessAzureQueueMessage(
   };
 }
 
+/**
+ * Creates a decorator that enqueues a message to an Azure queue after the decorated method executes successfully.
+ * @example
+ * AddMessageToQueue("UseDevelopmentStorage=true;")(target, "methodName", descriptor)
+ * { status: "success", response: result }
+ * @param {string} connectionString - Azure Storage connection string used to connect to the queue service.
+ * @returns {(target: any, key: string, descriptor: PropertyDescriptor) => PropertyDescriptor | { status: string; error: any }} A method decorator that wraps the original method and returns a success or failure status object.
+ */
 export function AddMessageToQueue(
   connectionString: string,
 ): (

@@ -1,3 +1,8 @@
+/**
+ * Converts a time interval value and unit into a cron expression.
+ * @example
+ * convertTimeIntervalToCron(5, 'minutes')
+ * "*/
 export function convertTimeIntervalToCron(value: number, unit: string) {
     let cronExpression = '';
     switch (unit.toLowerCase()) {
@@ -23,6 +28,15 @@ export function convertTimeIntervalToCron(value: number, unit: string) {
 }
 
 
+/**
+* Decodes an encoded message payload and returns the processed message content.
+* @example
+* getProcessedMessage(message, true)
+* "decoded message text" or parsed JSON object
+* @param {any} message - Message object containing the messageText property.
+* @param {boolean} isMessageEncoded - Indicates whether the message text is base64 encoded.
+* @returns {any} The decoded and parsed message content, or the original message text.
+**/
 export function getProcessedMessage(message: any,isMessageEncoded:boolean): any{
     let finalMessage;
     if(isMessageEncoded) {
